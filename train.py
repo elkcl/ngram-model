@@ -21,38 +21,11 @@ class Model:
             self.ngrams[i][ctx[self.n - i - 1:]][word] += 1
 
 
-class Candidate:
-    word: str
-    count: int
-    pref: int
-
-    def __init__(self: Candidate, word: str, count: int):
-        self.word = word
-        self.count = count
-        self.pref = 0
-
-
-class OptimisedModel:
-    n: int
-    ngrams: list[dict[tuple[str, ...], list[Candidate]]]
-
-    def __init__(self: OptimisedModel, model: Model) -> None:
-        self.n = model.n
-        for i in range(self.n):
-            for k, v in model.ngrams[i].items():
-                self.ngrams[i][k] = []
-                for word, count in v.items():
-                    self.ngrams[i][k].append(Candidate(word, count))
-                self.ngrams[i][k].sort(key=lambda x: x.count, reverse=True)
-                for j in range(1, len(self.ngrams[i][k])):
-                    self.ngrams[i][k][j].pref = self.ngrams[i][k][j - 1].pref + self.ngrams[i][k][j - 1].count
-
-
 def main() -> None:
     parser: argparse.ArgumentParser = argparse.ArgumentParser(
         description='Тренировка N-граммной модели')
-    parser.add_argument('--input-dir', dest='input_file_path',
-                        help='путь к директории с текстами для обучения (по умолчанию stdin)')
+    parser.add_argument('--input', dest='input_file_path',
+                        help='путь к файлу с текстом для обучения (по умолчанию stdin)')
     parser.add_argument('--model', dest='output_file_path', required=True,
                         help='путь к файлу, в который сохраняется модель (если он уже существует, то модель будет '
                              'обновлена)')
