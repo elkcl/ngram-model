@@ -38,7 +38,7 @@ def main() -> None:
         input_file = open(args.input_file_path, 'r')
     content = input_file.read()
     input_file.close()
-    tokens: list[str] = content.casefold().translate(str.maketrans('', '', string.punctuation)).split()
+    tokens: list[str] = content.casefold().translate(str.maketrans('', '', string.punctuation + '–«»…')).split()
     tokens = ['<BEGIN>'] * (args.ngram_len - 1) + tokens
     model: Model
     if os.path.isfile(args.output_file_path):
