@@ -14,6 +14,7 @@ from dataclasses import dataclass
 from train import Model
 
 
+# вспомогательный датакласс для кандидата
 @dataclass
 class Candidate:
     word: str
@@ -21,6 +22,7 @@ class Candidate:
     pref: int = 0
 
 
+# вспомогательный датакласс для списка кандидатов
 @dataclass
 class CandidateList:
     candidates: list[Candidate] = dataclasses.field(default_factory=list)
@@ -50,6 +52,7 @@ class OptimisedModel:
                     self.ngrams[i][k].count_sum += self.ngrams[i][k].candidates[j].count
 
 
+# бинарный поиск
 def bin_search(lo: int, hi: int, func: Callable[[int], bool]):
     lo -= 1
     hi += 1
@@ -63,6 +66,7 @@ def bin_search(lo: int, hi: int, func: Callable[[int], bool]):
 
 
 def main() -> None:
+    # парсим аргументы
     parser: argparse.ArgumentParser = argparse.ArgumentParser(
         description='Генератор текстов с помощью N-граммной модели')
     parser.add_argument('--model', dest='input_file_path', required=True,
@@ -72,6 +76,7 @@ def main() -> None:
                                                                                  'последовательности (в словах)')
     args: argparse.Namespace = parser.parse_args()
     model: OptimisedModel
+    # проверяем наличие оптимизированной версии модели
     if os.path.isfile(args.input_file_path + '.opt'):
         with open(args.input_file_path + '.opt', 'rb') as f:
             model = pickle.load(f, encoding='utf-8')
@@ -83,12 +88,14 @@ def main() -> None:
         with open(args.input_file_path + '.opt', 'wb') as f:
             pickle.dump(model, f)
 
+    # генерируем текст по словам
     text: list[str]
     curr: list[str]
     if args.prefix is None:
         text = []
         curr = ['<BEGIN>'] * (model.n - 1)
     else:
+        # токенизируем префикс
         text = args.prefix.casefold().translate(str.maketrans('', '', string.punctuation)).split()
         curr = text.copy()
         if len(curr) > (model.n - 1):
@@ -113,6 +120,7 @@ def main() -> None:
             curr.pop(0)
             break
 
+    # выводим на экран
     print(' '.join(text))
 
 
