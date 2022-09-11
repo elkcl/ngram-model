@@ -8,7 +8,7 @@ import argparse
 import pickle
 import string
 import random
-import bisect
+# import bisect
 import os
 from dataclasses import dataclass
 from train import Model
@@ -90,7 +90,7 @@ def main() -> None:
         curr = ['<BEGIN>'] * (model.n - 1)
     else:
         text = args.prefix.casefold().translate(str.maketrans('', '', string.punctuation)).split()
-        curr = text
+        curr = text.copy()
         if len(curr) > (model.n - 1):
             curr = curr[-model.n + 1:]
         elif len(curr) < (model.n - 1):
@@ -104,7 +104,9 @@ def main() -> None:
             curr_sum = model.ngrams[i][ctx].count_sum
             rand = random.randrange(0, curr_sum)
             # print(model.ngrams[i][ctx].candidates)
-            curr_index = bisect.bisect(model.ngrams[i][ctx].candidates, rand, key=lambda x: x.pref)
+            # curr_index = bisect.bisect(model.ngrams[i][ctx].candidates, rand, key=lambda x: x.pref)
+            curr_index = bin_search(0, len(model.ngrams[i][ctx].candidates) - 1,
+                                    lambda x: model.ngrams[i][ctx].candidates[x].pref <= rand)
             word = model.ngrams[i][ctx].candidates[curr_index].word
             text.append(word)
             curr.append(word)
